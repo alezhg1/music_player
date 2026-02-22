@@ -1,7 +1,7 @@
 // ⚙️ НАСТРОЙКИ - укажи свой GitHub username и репозиторий
 const GITHUB_CONFIG = {
-    username: 'YOUR_USERNAME',      // ← Твой GitHub username
-    repository: 'YOUR_REPO',        // ← Название репозитория
+    username: 'alezhg1',      // ← Твой GitHub username
+    repository: 'music_player',        // ← Название репозитория
     branch: 'main',                 // ← Ветка (main или master)
     musicFolder: 'music'            // ← Папка с музыкой
 };
