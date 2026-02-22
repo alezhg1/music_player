@@ -59,9 +59,11 @@ async function init() {
     }
 }
 
+// Загрузка списка файлов из GitHub API
 async function loadPlaylistFromGitHub() {
     const { username, repository, branch, musicFolder } = GITHUB_CONFIG;
     
+    // ✅ БЕЗ ПРОБЕЛОВ в URL
     const apiUrl = `https://api.github.com/repos/${username}/${repository}/contents/${musicFolder}?ref=${branch}`;
     
     console.log('Запрос к GitHub API:', apiUrl);
@@ -84,7 +86,7 @@ async function loadPlaylistFromGitHub() {
         .map(file => ({
             name: file.name,
             path: file.path,
-            // ИСПОЛЬЗУЕМ ОТНОСИТЕЛЬНЫЕ ПУТИ - нет CORS!
+            // ✅ ОТНОСИТЕЛЬНЫЙ ПУТЬ для GitHub Pages (нет CORS)
             downloadUrl: `./${file.path}`
         }));
     
@@ -104,9 +106,9 @@ async function loadPlaylistFromGitHub() {
                 cover: metadata.picture || null,
                 duration: 0
             });
-            console.log('✅ Успешно загружены теги для:', file.name);
+            console.log('✅ Теги загружены для:', file.name);
         } catch (error) {
-            console.error(`❌ Ошибка чтения тегов ${file.name}:`, error);
+            console.error(`❌ Ошибка: ${file.name}`, error);
             playlist.push({
                 src: file.downloadUrl,
                 path: file.path,
@@ -120,52 +122,32 @@ async function loadPlaylistFromGitHub() {
     }
     
     playlist.sort((a, b) => a.title.localeCompare(b.title));
-    console.log('Плейлист загружен:', playlist);
+    console.log('Плейлист готов:', playlist);
 }
 
-// Чтение ID3 тегов из файла
-async function readTags(filePath) {
-    try {
-        // Загружаем файл как blob
-        const response = await fetch(filePath);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const blob = await response.blob();
-        
-        // Создаем URL для blob
-        const blobUrl = URL.createObjectURL(blob);
-        
-        return new Promise((resolve, reject) => {
-            jsmediatags.read(blobUrl, {
-                onSuccess: function(tag) {
-                    // Освобождаем blob URL
-                    URL.revokeObjectURL(blobUrl);
-                    
-                    const tags = tag.tags;
-                    resolve({
-                        title: tags.title,
-                        artist: tags.artist,
-                        album: tags.album,
-                        picture: tags.picture || null
-                    });
-                },
-                onError: function(error) {
-                    URL.revokeObjectURL(blobUrl);
-                    reject(error);
-                }
-            });
+// ✅ ПРОСТАЯ функция чтения ID3 тегов
+function readTags(filePath) {
+    return new Promise((resolve) => {
+        jsmediatags.read(filePath, {
+            onSuccess: function(tag) {
+                resolve({
+                    title: tag.tags.title || null,
+                    artist: tag.tags.artist || null,
+                    album: tag.tags.album || null,
+                    picture: tag.tags.picture || null
+                });
+            },
+            onError: function(error) {
+                console.log('jsmediatags error (нет тегов):', error.type);
+                resolve({
+                    title: null,
+                    artist: null,
+                    album: null,
+                    picture: null
+                });
+            }
         });
-    } catch (error) {
-        console.error('Ошибка при загрузке файла:', error);
-        return {
-            title: null,
-            artist: null,
-            album: null,
-            picture: null
-        };
-    }
+    });
 }
 
 // Получение имени файла без расширения
