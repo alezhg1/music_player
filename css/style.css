@@ -3,6 +3,7 @@
     padding: 0;
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 body {
@@ -13,6 +14,23 @@ body {
     position: fixed;
     width: 100%;
     height: 100%;
+    overscroll-behavior: none;
+    -webkit-overscroll-behavior: none;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* Блокировка зума на iOS */
+@supports (-webkit-touch-callout: none) {
+    html, body {
+        touch-action: none;
+        -webkit-user-zoom: fixed;
+        user-zoom: fixed;
+    }
 }
 
 .player-container {
@@ -30,9 +48,9 @@ body {
     width: 200%;
     height: 200%;
     background: 
-        radial-gradient(circle at 20% 30%, rgba(100, 100, 120, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(80, 80, 100, 0.12) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(120, 120, 140, 0.08) 0%, transparent 60%);
+        radial-gradient(circle at 20% 30%, rgba(100, 100, 120, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(80, 80, 100, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(120, 120, 140, 0.1) 0%, transparent 60%);
     filter: blur(60px);
     animation: liquidMove 25s ease-in-out infinite;
     pointer-events: none;
@@ -96,6 +114,9 @@ body {
     66% { transform: translate(-20px, 20px) scale(0.95); }
 }
 
+/* ============================================
+   🎨 GLASS PLAYER - УСИЛЕН ДЛЯ МОБИЛЬНЫХ
+   ============================================ */
 .glass-player {
     position: relative;
     z-index: 10;
@@ -105,20 +126,21 @@ body {
     display: flex;
     flex-direction: column;
     
-    /* Liquid Glass Effect */
-    background: rgba(30, 30, 35, 0.25);
-    backdrop-filter: blur(50px) saturate(180%) brightness(0.9);
-    -webkit-backdrop-filter: blur(50px) saturate(180%) brightness(0.9);
+    /* Liquid Glass Effect - ТЕМНЫЙ НАСЫЩЕННЫЙ */
+    background: rgba(18, 18, 23, 0.88);
+    backdrop-filter: blur(45px) saturate(200%) brightness(0.82);
+    -webkit-backdrop-filter: blur(45px) saturate(200%) brightness(0.82);
     
     /* Glass Borders */
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
     
     box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+        0 25px 50px rgba(0, 0, 0, 0.6),
+        0 10px 30px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* Header */
@@ -133,37 +155,38 @@ body {
     width: 44px;
     height: 44px;
     border: none;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 
-        0 4px 15px rgba(0, 0, 0, 0.2),
+        0 4px 15px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .icon-btn svg {
     width: 20px;
     height: 20px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.75);
     transition: all 0.3s ease;
 }
 
 .icon-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.12);
     transform: translateY(-2px);
     box-shadow: 
-        0 8px 25px rgba(0, 0, 0, 0.3),
+        0 8px 25px rgba(0, 0, 0, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .icon-btn:hover svg {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .icon-btn:active {
@@ -171,7 +194,7 @@ body {
 }
 
 .now-playing {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.55);
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -189,20 +212,21 @@ body {
 .album-cover {
     width: 100%;
     height: 100%;
-    background: rgba(40, 40, 45, 0.4);
+    background: rgba(35, 35, 42, 0.5);
     backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     border-radius: 28px;
     
     /* Liquid Glass Border */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
     
     box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.4),
-        0 10px 20px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+        0 25px 50px rgba(0, 0, 0, 0.5),
+        0 10px 20px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.15);
     
     display: flex;
     align-items: center;
@@ -221,9 +245,9 @@ body {
     bottom: 0;
     background: linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.12) 0%,
         transparent 50%,
-        rgba(0, 0, 0, 0.1) 100%
+        rgba(0, 0, 0, 0.15) 100%
     );
     pointer-events: none;
 }
@@ -240,7 +264,7 @@ body {
 }
 
 .cover-placeholder {
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.2);
 }
 
 .cover-placeholder svg {
@@ -256,17 +280,17 @@ body {
 }
 
 .track-title {
-    color: #fff;
+    color: #ffffff;
     font-size: 26px;
     font-weight: 700;
     margin-bottom: 8px;
     line-height: 1.2;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
     letter-spacing: -0.5px;
 }
 
 .track-artist {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.55);
     font-size: 16px;
     font-weight: 500;
 }
@@ -280,28 +304,29 @@ body {
 .progress-bar {
     width: 100%;
     height: 6px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 3px;
     position: relative;
     cursor: pointer;
     overflow: visible;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .progress-fill {
     height: 100%;
     background: linear-gradient(
         90deg, 
-        rgba(150, 150, 160, 0.8) 0%, 
-        rgba(180, 180, 190, 0.9) 100%
+        rgba(160, 160, 170, 0.9) 0%, 
+        rgba(200, 200, 210, 0.95) 100%
     );
     border-radius: 3px;
     width: 0%;
     position: relative;
     box-shadow: 
-        0 0 20px rgba(150, 150, 160, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        0 0 20px rgba(160, 160, 170, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
     transition: width 0.1s ease;
 }
 
@@ -313,9 +338,9 @@ body {
     transform: translateY(-50%);
     width: 12px;
     height: 12px;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 50%;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
     opacity: 0;
     transition: opacity 0.2s;
 }
@@ -329,7 +354,7 @@ body {
     justify-content: space-between;
     margin-top: 12px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.45);
     font-weight: 500;
     letter-spacing: 0.5px;
 }
@@ -351,7 +376,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.75);
 }
 
 .control-btn svg {
@@ -362,23 +387,23 @@ body {
 
 .control-btn.shuffle,
 .control-btn.repeat {
-    opacity: 0.4;
+    opacity: 0.45;
 }
 
 .control-btn.shuffle.active,
 .control-btn.repeat.active {
     opacity: 1;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .control-btn.shuffle.active svg,
 .control-btn.repeat.active svg {
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.35));
 }
 
 .control-btn.prev,
 .control-btn.next {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .control-btn.prev svg,
@@ -396,27 +421,28 @@ body {
 .control-btn.play-pause {
     width: 80px;
     height: 80px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: 
-        0 15px 35px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        0 15px 35px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .control-btn.play-pause svg {
     width: 32px;
     height: 32px;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(255, 255, 255, 0.98);
 }
 
 .control-btn.play-pause:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.15);
     transform: scale(1.05);
     box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .control-btn:active {
@@ -438,27 +464,28 @@ body {
 .volume-icon {
     width: 20px;
     height: 20px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.55);
     flex-shrink: 0;
 }
 
 .volume-slider {
     flex: 1;
     height: 4px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
     position: relative;
     cursor: pointer;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .volume-fill {
     height: 100%;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.55);
     border-radius: 2px;
     width: 70%;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.25);
 }
 
 /* Playlist Panel */
@@ -468,7 +495,7 @@ body {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: rgba(15, 15, 18, 0.95);
+    background: rgba(12, 12, 16, 0.96);
     backdrop-filter: blur(60px);
     -webkit-backdrop-filter: blur(60px);
     z-index: 100;
@@ -476,7 +503,7 @@ body {
     display: flex;
     flex-direction: column;
     
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .playlist-panel.active {
@@ -488,12 +515,12 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 50px 24px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .playlist-header h3 {
-    color: #fff;
+    color: #ffffff;
     font-size: 28px;
     font-weight: 700;
     letter-spacing: -0.5px;
@@ -503,25 +530,26 @@ body {
     width: 40px;
     height: 40px;
     border: none;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .close-playlist svg {
     width: 22px;
     height: 22px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.75);
 }
 
 .close-playlist:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.12);
     transform: rotate(90deg);
 }
 
@@ -542,27 +570,27 @@ body {
 }
 
 .playlist-item:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-left-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: rgba(255, 255, 255, 0.25);
 }
 
 .playlist-item.active {
-    background: rgba(255, 255, 255, 0.08);
-    border-left-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+    border-left-color: rgba(255, 255, 255, 0.6);
 }
 
 .playlist-item-cover {
     width: 50px;
     height: 50px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
     margin-right: 15px;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .playlist-item-cover img {
@@ -574,7 +602,7 @@ body {
 .playlist-item-cover svg {
     width: 24px;
     height: 24px;
-    color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.25);
 }
 
 .playlist-item-info {
@@ -582,23 +610,23 @@ body {
 }
 
 .playlist-item-title {
-    color: #fff;
+    color: #ffffff;
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 4px;
 }
 
 .playlist-item.active .playlist-item-title {
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(255, 255, 255, 0.98);
 }
 
 .playlist-item-artist {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.45);
     font-size: 14px;
 }
 
 .playlist-item-duration {
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.4);
     font-size: 13px;
     margin-left: 10px;
     font-weight: 500;
@@ -614,12 +642,12 @@ body {
 }
 
 .playlist-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.18);
     border-radius: 3px;
 }
 
 .playlist-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.28);
 }
 
 /* Safe area for iPhone */
@@ -645,16 +673,16 @@ body {
     0%, 100% { 
         transform: scale(1);
         box-shadow: 
-            0 25px 50px rgba(0, 0, 0, 0.4),
-            0 10px 20px rgba(0, 0, 0, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            0 25px 50px rgba(0, 0, 0, 0.5),
+            0 10px 20px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
     50% { 
         transform: scale(1.02);
         box-shadow: 
-            0 30px 60px rgba(0, 0, 0, 0.5),
-            0 15px 30px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            0 30px 60px rgba(0, 0, 0, 0.6),
+            0 15px 30px rgba(0, 0, 0, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.18);
     }
 }
 
@@ -676,8 +704,8 @@ body {
 .loading-spinner {
     width: 60px;
     height: 60px;
-    border: 3px solid rgba(255, 255, 255, 0.05);
-    border-top-color: rgba(255, 255, 255, 0.4);
+    border: 3px solid rgba(255, 255, 255, 0.06);
+    border-top-color: rgba(255, 255, 255, 0.45);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 20px;
@@ -689,7 +717,7 @@ body {
 }
 
 .loading-text {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.55);
     font-size: 15px;
     font-weight: 500;
     letter-spacing: 0.5px;
@@ -702,7 +730,7 @@ body {
 }
 
 .error-text {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.65);
     font-size: 16px;
     text-align: center;
     padding: 0 20px;
@@ -711,22 +739,23 @@ body {
 
 .retry-btn {
     padding: 14px 32px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 25px;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.85);
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     box-shadow: 
-        0 10px 30px rgba(0, 0, 0, 0.3),
+        0 10px 30px rgba(0, 0, 0, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
 }
 
 .retry-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
 }
 
@@ -735,13 +764,16 @@ body {
 }
 
 /* ============================================
-   📱 АДАПТИВНОСТЬ ДЛЯ МАЛЕНЬКИХ ЭКРАНОВ
+   📱 АДАПТИВНОСТЬ - ТЕМНЫЙ СТИЛЬ НА МОБИЛЬНЫХ
    ============================================ */
 
 /* iPhone SE, small phones (320px - 375px) */
 @media screen and (max-width: 375px) {
     .glass-player {
         padding: 40px 16px 30px;
+        background: rgba(15, 15, 20, 0.92);
+        -webkit-backdrop-filter: blur(35px) saturate(200%) brightness(0.8);
+        backdrop-filter: blur(35px) saturate(200%) brightness(0.8);
     }
     
     .player-header {
@@ -751,6 +783,7 @@ body {
     .icon-btn {
         width: 40px;
         height: 40px;
+        background: rgba(255, 255, 255, 0.1);
     }
     
     .icon-btn svg {
@@ -770,6 +803,7 @@ body {
     
     .album-cover {
         border-radius: 20px;
+        background: rgba(35, 35, 42, 0.6);
     }
     
     .cover-placeholder svg {
@@ -784,10 +818,12 @@ body {
     .track-title {
         font-size: 20px;
         margin-bottom: 6px;
+        color: #ffffff;
     }
     
     .track-artist {
         font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
     }
     
     .progress-container {
@@ -796,16 +832,22 @@ body {
     
     .progress-bar {
         height: 5px;
+        background: rgba(255, 255, 255, 0.12);
     }
     
     .time-display {
         margin-top: 8px;
         font-size: 11px;
+        color: rgba(255, 255, 255, 0.5);
     }
     
     .controls {
         gap: 15px;
         margin-bottom: 20px;
+    }
+    
+    .control-btn {
+        color: rgba(255, 255, 255, 0.85);
     }
     
     .control-btn svg {
@@ -822,11 +864,13 @@ body {
     .control-btn.play-pause {
         width: 70px;
         height: 70px;
+        background: rgba(255, 255, 255, 0.12);
     }
     
     .control-btn.play-pause svg {
         width: 28px;
         height: 28px;
+        color: rgba(255, 255, 255, 0.98);
     }
     
     .volume-container {
@@ -837,10 +881,16 @@ body {
     .volume-icon {
         width: 18px;
         height: 18px;
+        color: rgba(255, 255, 255, 0.6);
     }
     
     .volume-slider {
         height: 3px;
+        background: rgba(255, 255, 255, 0.12);
+    }
+    
+    .volume-fill {
+        background: rgba(255, 255, 255, 0.6);
     }
     
     .playlist-header h3 {
@@ -859,14 +909,17 @@ body {
     
     .playlist-item-title {
         font-size: 14px;
+        color: #ffffff;
     }
     
     .playlist-item-artist {
         font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
     }
     
     .playlist-item-duration {
         font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
     }
 }
 
@@ -874,6 +927,7 @@ body {
 @media screen and (min-width: 376px) and (max-width: 414px) {
     .glass-player {
         padding: 45px 20px 35px;
+        background: rgba(16, 16, 21, 0.9);
     }
     
     .album-cover-container {
@@ -941,7 +995,7 @@ body {
     }
     
     .volume-container {
-        display: none; /* Скрываем громкость в ландшафтном режиме для экономии места */
+        display: none;
     }
 }
 
@@ -949,6 +1003,7 @@ body {
 @media screen and (min-width: 415px) and (max-width: 768px) {
     .glass-player {
         padding: 50px 28px 40px;
+        background: rgba(17, 17, 22, 0.88);
     }
     
     .album-cover-container {
@@ -990,12 +1045,12 @@ body {
 /* High contrast mode */
 @media (prefers-contrast: high) {
     .glass-player {
-        background: rgba(20, 20, 25, 0.9);
-        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(15, 15, 20, 0.95);
+        border-color: rgba(255, 255, 255, 0.35);
     }
     
     .album-cover {
-        border-color: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.35);
     }
     
     .track-title {
@@ -1003,32 +1058,13 @@ body {
     }
     
     .track-artist {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.85);
     }
 }
 
-/* Dark mode (already dark, but for consistency) */
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
     body {
         background: #0a0a0f;
-    }
-}
-
-/* Light mode adjustment */
-@media (prefers-color-scheme: light) {
-    body {
-        background: #f0f0f5;
-    }
-    
-    .glass-player {
-        background: rgba(240, 240, 245, 0.6);
-    }
-    
-    .track-title {
-        color: #1a1a2e;
-    }
-    
-    .track-artist {
-        color: rgba(26, 26, 46, 0.6);
     }
 }
