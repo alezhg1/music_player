@@ -88,7 +88,8 @@ async function loadPlaylistFromGitHub() {
         .map(file => ({
             name: file.name,
             path: file.path,
-            downloadUrl: file.download_url,
+            // ИСПОЛЬЗУЕМ jsDelivr ВМЕСТО raw.githubusercontent.com
+            downloadUrl: `https://cdn.jsdelivr.net/gh/${username}/${repository}@${branch}/${file.path}`,
             size: file.size
         }));
     
@@ -109,7 +110,6 @@ async function loadPlaylistFromGitHub() {
             });
         } catch (error) {
             console.error(`Ошибка чтения тегов ${file.name}:`, error);
-            // Добавляем песню без метаданных
             playlist.push({
                 src: file.downloadUrl,
                 path: file.path,
