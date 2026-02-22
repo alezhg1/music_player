@@ -84,7 +84,8 @@ async function loadPlaylistFromGitHub() {
         .map(file => ({
             name: file.name,
             path: file.path,
-            downloadUrl: `https://raw.githack.com/${username}/${repository}/${branch}/${file.path}`
+            // ИСПОЛЬЗУЕМ ОТНОСИТЕЛЬНЫЕ ПУТИ - нет CORS!
+            downloadUrl: `./${file.path}`
         }));
     
     console.log(`Найдено ${mp3Files.length} MP3 файлов`);
