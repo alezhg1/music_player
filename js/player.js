@@ -124,24 +124,48 @@ async function loadPlaylistFromGitHub() {
 }
 
 // Чтение ID3 тегов из файла
-function readTags(filePath) {
-    return new Promise((resolve, reject) => {
-        // УБРАЛИ timestamp - он вызывает проблемы с CORS
-        jsmediatags.read(filePath, {
-            onSuccess: function(tag) {
-                const tags = tag.tags;
-                resolve({
-                    title: tags.title,
-                    artist: tags.artist,
-                    album: tags.album,
-                    picture: tags.picture || null
-                });
-            },
-            onError: function(error) {
-                reject(error);
-            }
+async function readTags(filePath) {
+    try {
+        // Загружаем файл как blob
+        const response = await fetch(filePath);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const blob = await response.blob();
+        
+        // Создаем URL для blob
+        const blobUrl = URL.createObjectURL(blob);
+        
+        return new Promise((resolve, reject) => {
+            jsmediatags.read(blobUrl, {
+                onSuccess: function(tag) {
+                    // Освобождаем blob URL
+                    URL.revokeObjectURL(blobUrl);
+                    
+                    const tags = tag.tags;
+                    resolve({
+                        title: tags.title,
+                        artist: tags.artist,
+                        album: tags.album,
+                        picture: tags.picture || null
+                    });
+                },
+                onError: function(error) {
+                    URL.revokeObjectURL(blobUrl);
+                    reject(error);
+                }
+            });
         });
-    });
+    } catch (error) {
+        console.error('Ошибка при загрузке файла:', error);
+        return {
+            title: null,
+            artist: null,
+            album: null,
+            picture: null
+        };
+    }
 }
 
 // Получение имени файла без расширения
