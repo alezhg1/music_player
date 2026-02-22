@@ -59,7 +59,6 @@ async function init() {
     }
 }
 
-// Загрузка списка файлов из GitHub API
 async function loadPlaylistFromGitHub() {
     const { username, repository, branch, musicFolder } = GITHUB_CONFIG;
     
@@ -80,20 +79,17 @@ async function loadPlaylistFromGitHub() {
     
     const files = await response.json();
     
-    // Фильтруем только MP3 файлы
     const mp3Files = files
         .filter(file => file.type === 'file' && file.name.toLowerCase().endsWith('.mp3'))
         .map(file => ({
             name: file.name,
             path: file.path,
-            // ИСПОЛЬЗУЕМ jsDelivr CDN для обхода CORS
             downloadUrl: `https://raw.githack.com/${username}/${repository}/${branch}/${file.path}`
         }));
     
     console.log(`Найдено ${mp3Files.length} MP3 файлов`);
     console.log('Пример URL:', mp3Files[0]?.downloadUrl);
     
-    // Загружаем метаданные для каждого файла
     for (const file of mp3Files) {
         try {
             console.log('Читаем теги из:', file.downloadUrl);
@@ -107,9 +103,9 @@ async function loadPlaylistFromGitHub() {
                 cover: metadata.picture || null,
                 duration: 0
             });
-            console.log('Успешно загружены теги для:', file.name);
+            console.log('✅ Успешно загружены теги для:', file.name);
         } catch (error) {
-            console.error(`Ошибка чтения тегов ${file.name}:`, error);
+            console.error(`❌ Ошибка чтения тегов ${file.name}:`, error);
             playlist.push({
                 src: file.downloadUrl,
                 path: file.path,
@@ -122,9 +118,7 @@ async function loadPlaylistFromGitHub() {
         }
     }
     
-    // Сортируем по имени файла
     playlist.sort((a, b) => a.title.localeCompare(b.title));
-    
     console.log('Плейлист загружен:', playlist);
 }
 
