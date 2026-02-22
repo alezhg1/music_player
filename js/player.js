@@ -1,16 +1,16 @@
-// ⚙️ НАСТРОЙКИ - укажи свой GitHub username и репозиторий
+// ⚙️ НАСТРОЙКИ
 const GITHUB_CONFIG = {
-    username: 'alezhg1',      // ← Твой GitHub username
-    repository: 'music_player',        // ← Название репозитория
-    branch: 'main',                 // ← Ветка (main или master)
-    musicFolder: 'music'            // ← Папка с музыкой
+    username: 'alezhg1',
+    repository: 'music_player',
+    branch: 'main',
+    musicFolder: 'music'
 };
 
 // Player state
 let currentTrackIndex = 0;
 let isPlaying = false;
 let isShuffle = false;
-let repeatMode = 0; // 0 - no repeat, 1 - repeat all, 2 - repeat one
+let repeatMode = 0;
 let playlist = [];
 
 // DOM Elements
@@ -48,7 +48,6 @@ async function init() {
             setupEventListeners();
             setupTouchControls();
             
-            // Show player, hide loading
             loadingScreen.style.display = 'none';
             glassPlayer.style.display = 'flex';
         } else {
@@ -64,7 +63,6 @@ async function init() {
 async function loadPlaylistFromGitHub() {
     const { username, repository, branch, musicFolder } = GITHUB_CONFIG;
     
-    // Получаем список файлов из папки music
     const apiUrl = `https://api.github.com/repos/${username}/${repository}/contents/${musicFolder}?ref=${branch}`;
     
     console.log('Запрос к GitHub API:', apiUrl);
@@ -88,16 +86,17 @@ async function loadPlaylistFromGitHub() {
         .map(file => ({
             name: file.name,
             path: file.path,
-            // ИСПОЛЬЗУЕМ jsDelivr ВМЕСТО raw.githubusercontent.com
-            downloadUrl: `https://cdn.jsdelivr.net/gh/${username}/${repository}@${branch}/${file.path}`,
-            size: file.size
+            // ИСПОЛЬЗУЕМ jsDelivr CDN для обхода CORS
+            downloadUrl: `https://cdn.jsdelivr.net/gh/${username}/${repository}@${branch}/${file.path}`
         }));
     
     console.log(`Найдено ${mp3Files.length} MP3 файлов`);
+    console.log('Пример URL:', mp3Files[0]?.downloadUrl);
     
     // Загружаем метаданные для каждого файла
     for (const file of mp3Files) {
         try {
+            console.log('Читаем теги из:', file.downloadUrl);
             const metadata = await readTags(file.downloadUrl);
             playlist.push({
                 src: file.downloadUrl,
@@ -108,6 +107,7 @@ async function loadPlaylistFromGitHub() {
                 cover: metadata.picture || null,
                 duration: 0
             });
+            console.log('Успешно загружены теги для:', file.name);
         } catch (error) {
             console.error(`Ошибка чтения тегов ${file.name}:`, error);
             playlist.push({
@@ -131,7 +131,10 @@ async function loadPlaylistFromGitHub() {
 // Чтение ID3 тегов из файла
 function readTags(filePath) {
     return new Promise((resolve, reject) => {
-        jsmediatags.read(filePath, {
+        // Добавляем timestamp для обхода кэша
+        const urlWithCache = `${filePath}?t=${Date.now()}`;
+        
+        jsmediatags.read(urlWithCache, {
             onSuccess: function(tag) {
                 const tags = tag.tags;
                 resolve({
@@ -164,7 +167,7 @@ function getCoverDataUrl(picture) {
         base64String += String.fromCharCode(data[i]);
     }
     
-    return `${format};base64,${window.btoa(base64String)}`;
+    return `data:${format};base64,${window.btoa(base64String)}`;
 }
 
 // Load track
@@ -176,8 +179,19 @@ function loadTrack(index) {
     
     // Устанавливаем обложку
     if (track.cover) {
-        const coverUrl = getCoverDataUrl(track.cover);
-        albumCover.innerHTML = `<img src="${coverUrl}" alt="${track.title}">`;
+        try {
+            const coverUrl = getCoverDataUrl(track.cover);
+            albumCover.innerHTML = `<img src="${coverUrl}" alt="${track.title}" onerror="this.parentElement.innerHTML='<div class=\\'cover-placeholder\\'><svg viewBox=\\'0 0 24 24\\' fill=\\'currentColor\\'><path d=\\'M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z\\'/></svg></div>'">`;
+        } catch (e) {
+            console.error('Ошибка загрузки обложки:', e);
+            albumCover.innerHTML = `
+                <div class="cover-placeholder">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                    </svg>
+                </div>
+            `;
+        }
     } else {
         albumCover.innerHTML = `
             <div class="cover-placeholder">
@@ -199,7 +213,7 @@ function renderPlaylist() {
         <div class="playlist-item ${index === currentTrackIndex ? 'active' : ''}" data-index="${index}">
             <div class="playlist-item-cover">
                 ${track.cover 
-                    ? `<img src="${getCoverDataUrl(track.cover)}" alt="${track.title}">`
+                    ? `<img src="${getCoverDataUrl(track.cover)}" alt="${track.title}" onerror="this.outerHTML='<svg viewBox=\\'0 0 24 24\\' fill=\\'currentColor\\'><path d=\\'M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z\\'/></svg>'">`
                     : `<svg viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                        </svg>`
