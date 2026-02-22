@@ -87,7 +87,7 @@ async function loadPlaylistFromGitHub() {
             name: file.name,
             path: file.path,
             // ИСПОЛЬЗУЕМ jsDelivr CDN для обхода CORS
-            downloadUrl: `https://cdn.jsdelivr.net/gh/${username}/${repository}@${branch}/${file.path}`
+            downloadUrl: `https://raw.githack.com/${username}/${repository}/${branch}/${file.path}`
         }));
     
     console.log(`Найдено ${mp3Files.length} MP3 файлов`);
@@ -131,10 +131,8 @@ async function loadPlaylistFromGitHub() {
 // Чтение ID3 тегов из файла
 function readTags(filePath) {
     return new Promise((resolve, reject) => {
-        // Добавляем timestamp для обхода кэша
-        const urlWithCache = `${filePath}?t=${Date.now()}`;
-        
-        jsmediatags.read(urlWithCache, {
+        // УБРАЛИ timestamp - он вызывает проблемы с CORS
+        jsmediatags.read(filePath, {
             onSuccess: function(tag) {
                 const tags = tag.tags;
                 resolve({
