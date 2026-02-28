@@ -24,7 +24,6 @@ body {
     text-size-adjust: 100%;
 }
 
-/* Блокировка зума на iOS */
 @supports (-webkit-touch-callout: none) {
     html, body {
         touch-action: none;
@@ -40,7 +39,6 @@ body {
     overflow: hidden;
 }
 
-/* Animated Liquid Background */
 .bg-blur {
     position: absolute;
     top: -50%;
@@ -71,7 +69,6 @@ body {
     }
 }
 
-/* Floating Orbs */
 .orb {
     position: absolute;
     border-radius: 50%;
@@ -114,9 +111,6 @@ body {
     66% { transform: translate(-20px, 20px) scale(0.95); }
 }
 
-/* ============================================
-   🎨 GLASS PLAYER - УСИЛЕН ДЛЯ МОБИЛЬНЫХ
-   ============================================ */
 .glass-player {
     position: relative;
     z-index: 10;
@@ -126,12 +120,10 @@ body {
     display: flex;
     flex-direction: column;
     
-    /* Liquid Glass Effect - ТЕМНЫЙ НАСЫЩЕННЫЙ */
     background: rgba(18, 18, 23, 0.88);
     backdrop-filter: blur(45px) saturate(200%) brightness(0.82);
     -webkit-backdrop-filter: blur(45px) saturate(200%) brightness(0.82);
     
-    /* Glass Borders */
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     border-left: 1px solid rgba(255, 255, 255, 0.06);
     border-right: 1px solid rgba(255, 255, 255, 0.06);
@@ -143,7 +135,6 @@ body {
         inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
-/* Header */
 .player-header {
     display: flex;
     justify-content: space-between;
@@ -201,7 +192,6 @@ body {
     letter-spacing: 1.5px;
 }
 
-/* Album Cover */
 .album-cover-container {
     width: 100%;
     max-width: 320px;
@@ -217,7 +207,6 @@ body {
     -webkit-backdrop-filter: blur(30px);
     border-radius: 28px;
     
-    /* Liquid Glass Border */
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-top: 1px solid rgba(255, 255, 255, 0.18);
     border-left: 1px solid rgba(255, 255, 255, 0.12);
@@ -272,7 +261,6 @@ body {
     height: 80px;
 }
 
-/* Track Info */
 .track-info {
     text-align: center;
     margin-bottom: 30px;
@@ -295,7 +283,6 @@ body {
     font-weight: 500;
 }
 
-/* Progress Bar */
 .progress-container {
     width: 100%;
     margin-bottom: 30px;
@@ -359,7 +346,6 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* Controls */
 .controls {
     display: flex;
     justify-content: center;
@@ -453,7 +439,6 @@ body {
     transform: scale(0.92);
 }
 
-/* Volume */
 .volume-container {
     display: flex;
     align-items: center;
@@ -488,7 +473,6 @@ body {
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.25);
 }
 
-/* Playlist Panel */
 .playlist-panel {
     position: fixed;
     top: 0;
@@ -632,7 +616,6 @@ body {
     font-weight: 500;
 }
 
-/* Scrollbar */
 .playlist-content::-webkit-scrollbar {
     width: 6px;
 }
@@ -650,7 +633,6 @@ body {
     background: rgba(255, 255, 255, 0.28);
 }
 
-/* Safe area for iPhone */
 @supports (padding: max(0px)) {
     .glass-player {
         padding-left: max(24px, env(safe-area-inset-left));
@@ -664,7 +646,6 @@ body {
     }
 }
 
-/* Animations */
 .playing .album-cover {
     animation: subtlePulse 4s ease-in-out infinite;
 }
@@ -686,7 +667,6 @@ body {
     }
 }
 
-/* Loading Screen */
 .loading-screen {
     position: fixed;
     top: 0;
@@ -763,11 +743,6 @@ body {
     transform: translateY(0) scale(0.98);
 }
 
-/* ============================================
-   📱 АДАПТИВНОСТЬ - ТЕМНЫЙ СТИЛЬ НА МОБИЛЬНЫХ
-   ============================================ */
-
-/* iPhone SE, small phones (320px - 375px) */
 @media screen and (max-width: 375px) {
     .glass-player {
         padding: 40px 16px 30px;
@@ -776,295 +751,88 @@ body {
         backdrop-filter: blur(35px) saturate(200%) brightness(0.8);
     }
     
-    .player-header {
-        margin-bottom: 20px;
-    }
-    
-    .icon-btn {
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.1);
-    }
-    
-    .icon-btn svg {
-        width: 18px;
-        height: 18px;
-    }
-    
-    .now-playing {
-        font-size: 11px;
-        letter-spacing: 1px;
-    }
-    
-    .album-cover-container {
-        max-width: 240px;
-        margin: 0 auto 20px;
-    }
-    
-    .album-cover {
-        border-radius: 20px;
-        background: rgba(35, 35, 42, 0.6);
-    }
-    
-    .cover-placeholder svg {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .track-info {
-        margin-bottom: 20px;
-    }
-    
-    .track-title {
-        font-size: 20px;
-        margin-bottom: 6px;
-        color: #ffffff;
-    }
-    
-    .track-artist {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.6);
-    }
-    
-    .progress-container {
-        margin-bottom: 20px;
-    }
-    
-    .progress-bar {
-        height: 5px;
-        background: rgba(255, 255, 255, 0.12);
-    }
-    
-    .time-display {
-        margin-top: 8px;
-        font-size: 11px;
-        color: rgba(255, 255, 255, 0.5);
-    }
-    
-    .controls {
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-    
-    .control-btn {
-        color: rgba(255, 255, 255, 0.85);
-    }
-    
-    .control-btn svg {
-        width: 24px;
-        height: 24px;
-    }
-    
-    .control-btn.prev svg,
-    .control-btn.next svg {
-        width: 30px;
-        height: 30px;
-    }
-    
-    .control-btn.play-pause {
-        width: 70px;
-        height: 70px;
-        background: rgba(255, 255, 255, 0.12);
-    }
-    
-    .control-btn.play-pause svg {
-        width: 28px;
-        height: 28px;
-        color: rgba(255, 255, 255, 0.98);
-    }
-    
-    .volume-container {
-        gap: 10px;
-        padding: 0 5px;
-    }
-    
-    .volume-icon {
-        width: 18px;
-        height: 18px;
-        color: rgba(255, 255, 255, 0.6);
-    }
-    
-    .volume-slider {
-        height: 3px;
-        background: rgba(255, 255, 255, 0.12);
-    }
-    
-    .volume-fill {
-        background: rgba(255, 255, 255, 0.6);
-    }
-    
-    .playlist-header h3 {
-        font-size: 22px;
-    }
-    
-    .playlist-item {
-        padding: 12px 16px;
-    }
-    
-    .playlist-item-cover {
-        width: 44px;
-        height: 44px;
-        margin-right: 12px;
-    }
-    
-    .playlist-item-title {
-        font-size: 14px;
-        color: #ffffff;
-    }
-    
-    .playlist-item-artist {
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.5);
-    }
-    
-    .playlist-item-duration {
-        font-size: 11px;
-        color: rgba(255, 255, 255, 0.4);
-    }
+    .player-header { margin-bottom: 20px; }
+    .icon-btn { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .now-playing { font-size: 11px; letter-spacing: 1px; }
+    .album-cover-container { max-width: 240px; margin: 0 auto 20px; }
+    .album-cover { border-radius: 20px; background: rgba(35, 35, 42, 0.6); }
+    .cover-placeholder svg { width: 60px; height: 60px; }
+    .track-info { margin-bottom: 20px; }
+    .track-title { font-size: 20px; margin-bottom: 6px; color: #ffffff; }
+    .track-artist { font-size: 14px; color: rgba(255, 255, 255, 0.6); }
+    .progress-container { margin-bottom: 20px; }
+    .progress-bar { height: 5px; background: rgba(255, 255, 255, 0.12); }
+    .time-display { margin-top: 8px; font-size: 11px; color: rgba(255, 255, 255, 0.5); }
+    .controls { gap: 15px; margin-bottom: 20px; }
+    .control-btn { color: rgba(255, 255, 255, 0.85); }
+    .control-btn svg { width: 24px; height: 24px; }
+    .control-btn.prev svg, .control-btn.next svg { width: 30px; height: 30px; }
+    .control-btn.play-pause { width: 70px; height: 70px; background: rgba(255, 255, 255, 0.12); }
+    .control-btn.play-pause svg { width: 28px; height: 28px; color: rgba(255, 255, 255, 0.98); }
+    .volume-container { gap: 10px; padding: 0 5px; }
+    .volume-icon { width: 18px; height: 18px; color: rgba(255, 255, 255, 0.6); }
+    .volume-slider { height: 3px; background: rgba(255, 255, 255, 0.12); }
+    .volume-fill { background: rgba(255, 255, 255, 0.6); }
+    .playlist-header h3 { font-size: 22px; }
+    .playlist-item { padding: 12px 16px; }
+    .playlist-item-cover { width: 44px; height: 44px; margin-right: 12px; }
+    .playlist-item-title { font-size: 14px; color: #ffffff; }
+    .playlist-item-artist { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+    .playlist-item-duration { font-size: 11px; color: rgba(255, 255, 255, 0.4); }
 }
 
-/* iPhone 11, medium phones (376px - 414px) */
 @media screen and (min-width: 376px) and (max-width: 414px) {
-    .glass-player {
-        padding: 45px 20px 35px;
-        background: rgba(16, 16, 21, 0.9);
-    }
-    
-    .album-cover-container {
-        max-width: 280px;
-    }
-    
-    .track-title {
-        font-size: 22px;
-    }
-    
-    .track-artist {
-        font-size: 15px;
-    }
-    
-    .controls {
-        gap: 18px;
-    }
-    
-    .control-btn.play-pause {
-        width: 75px;
-        height: 75px;
-    }
+    .glass-player { padding: 45px 20px 35px; background: rgba(16, 16, 21, 0.9); }
+    .album-cover-container { max-width: 280px; }
+    .track-title { font-size: 22px; }
+    .track-artist { font-size: 15px; }
+    .controls { gap: 18px; }
+    .control-btn.play-pause { width: 75px; height: 75px; }
 }
 
-/* Landscape mode on phones */
 @media screen and (max-height: 600px) and (orientation: landscape) {
-    .glass-player {
-        padding: 30px 24px 20px;
-    }
-    
-    .album-cover-container {
-        max-width: 200px;
-        margin: 0 auto 15px;
-    }
-    
-    .track-info {
-        margin-bottom: 15px;
-    }
-    
-    .track-title {
-        font-size: 18px;
-        margin-bottom: 4px;
-    }
-    
-    .track-artist {
-        font-size: 13px;
-    }
-    
-    .progress-container {
-        margin-bottom: 15px;
-    }
-    
-    .controls {
-        margin-bottom: 15px;
-    }
-    
-    .control-btn.play-pause {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .control-btn.play-pause svg {
-        width: 24px;
-        height: 24px;
-    }
-    
-    .volume-container {
-        display: none;
-    }
+    .glass-player { padding: 30px 24px 20px; }
+    .album-cover-container { max-width: 200px; margin: 0 auto 15px; }
+    .track-info { margin-bottom: 15px; }
+    .track-title { font-size: 18px; margin-bottom: 4px; }
+    .track-artist { font-size: 13px; }
+    .progress-container { margin-bottom: 15px; }
+    .controls { margin-bottom: 15px; }
+    .control-btn.play-pause { width: 60px; height: 60px; }
+    .control-btn.play-pause svg { width: 24px; height: 24px; }
+    .volume-container { display: none; }
 }
 
-/* Large phones and small tablets (415px - 768px) */
 @media screen and (min-width: 415px) and (max-width: 768px) {
-    .glass-player {
-        padding: 50px 28px 40px;
-        background: rgba(17, 17, 22, 0.88);
-    }
-    
-    .album-cover-container {
-        max-width: 300px;
-    }
-    
-    .track-title {
-        font-size: 24px;
-    }
+    .glass-player { padding: 50px 28px 40px; background: rgba(17, 17, 22, 0.88); }
+    .album-cover-container { max-width: 300px; }
+    .track-title { font-size: 24px; }
 }
 
-/* Touch optimizations */
 @media (hover: none) and (pointer: coarse) {
-    .icon-btn,
-    .control-btn,
-    .playlist-item,
-    .close-playlist {
+    .icon-btn, .control-btn, .playlist-item, .close-playlist {
         min-width: 44px;
         min-height: 44px;
     }
-    
-    .progress-bar,
-    .volume-slider {
-        min-height: 8px;
-    }
+    .progress-bar, .volume-slider { min-height: 8px; }
 }
 
-/* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
 }
 
-/* High contrast mode */
 @media (prefers-contrast: high) {
-    .glass-player {
-        background: rgba(15, 15, 20, 0.95);
-        border-color: rgba(255, 255, 255, 0.35);
-    }
-    
-    .album-cover {
-        border-color: rgba(255, 255, 255, 0.35);
-    }
-    
-    .track-title {
-        color: #ffffff;
-    }
-    
-    .track-artist {
-        color: rgba(255, 255, 255, 0.85);
-    }
+    .glass-player { background: rgba(15, 15, 20, 0.95); border-color: rgba(255, 255, 255, 0.35); }
+    .album-cover { border-color: rgba(255, 255, 255, 0.35); }
+    .track-title { color: #ffffff; }
+    .track-artist { color: rgba(255, 255, 255, 0.85); }
 }
 
-/* Dark mode */
 @media (prefers-color-scheme: dark) {
-    body {
-        background: #0a0a0f;
-    }
+    body { background: #0a0a0f; }
 }
