@@ -37,12 +37,22 @@ const loadingScreen = document.getElementById('loadingScreen');
 const glassPlayer = document.getElementById('glassPlayer');
 const playlistCount = document.getElementById('playlistCount');
 
+// Storage keys
+const STORAGE_KEY = 'music_player_state';
+
 // Initialize player
 async function init() {
     try {
         await loadPlaylistFromGitHub();
         
         if (playlist.length > 0) {
+            // Загружаем сохраненное состояние
+            const savedState = loadPlayerState();
+            
+            if (savedState && savedState.trackIndex >= 0 && savedState.trackIndex < playlist.length) {
+                currentTrackIndex = savedState.trackIndex;
+            }
+            
             loadTrack(currentTrackIndex);
             renderPlaylist();
             setupEventListeners();
@@ -50,6 +60,25 @@ async function init() {
             
             loadingScreen.style.display = 'none';
             glassPlayer.style.display = 'flex';
+            
+            // Восстанавливаем позицию воспроизведения
+            if (savedState && savedState.currentTime > 0) {
+                setTimeout(() => {
+                    audio.currentTime = savedState.currentTime;
+                    updateProgress();
+                }, 500);
+            }
+            
+            // Восстанавливаем настройки
+            if (savedState) {
+                isShuffle = savedState.shuffle || false;
+                repeatMode = savedState.repeat || 0;
+                audio.volume = savedState.volume || 0.7;
+                
+                shuffleBtn.classList.toggle('active', isShuffle);
+                repeatBtn.classList.toggle('active', repeatMode > 0);
+                volumeFill.style.width = (audio.volume * 100) + '%';
+            }
         } else {
             showError('Не найдено MP3 файлов в папке /music/');
         }
@@ -59,11 +88,60 @@ async function init() {
     }
 }
 
+// Сохранение состояния плеера
+function savePlayerState() {
+    const state = {
+        trackIndex: currentTrackIndex,
+        currentTime: audio.currentTime,
+        shuffle: isShuffle,
+        repeat: repeatMode,
+        volume: audio.volume,
+        timestamp: Date.now()
+    };
+    
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        console.log('💾 Состояние сохранено:', state);
+    } catch (e) {
+        console.error('❌ Ошибка сохранения:', e);
+    }
+}
+
+// Загрузка сохраненного состояния
+function loadPlayerState() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            const state = JSON.parse(saved);
+            // Проверяем, что состояние не старше 7 дней
+            const maxAge = 7 * 24 * 60 * 60 * 1000;
+            if (Date.now() - state.timestamp < maxAge) {
+                console.log('📂 Загружено сохраненное состояние:', state);
+                return state;
+            } else {
+                console.log('🗑️ Сохранение устарело, очищаем');
+                localStorage.removeItem(STORAGE_KEY);
+            }
+        }
+    } catch (e) {
+        console.error('❌ Ошибка загрузки состояния:', e);
+    }
+    return null;
+}
+
+// Очистка состояния при закрытии
+function clearPlayerState() {
+    try {
+        localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+        console.error('❌ Ошибка очистки:', e);
+    }
+}
+
 // Загрузка списка файлов из GitHub API
 async function loadPlaylistFromGitHub() {
     const { username, repository, branch, musicFolder } = GITHUB_CONFIG;
     
-    // ✅ БЕЗ ПРОБЕЛОВ в URL
     const apiUrl = `https://api.github.com/repos/${username}/${repository}/contents/${musicFolder}?ref=${branch}`;
     
     console.log('Запрос к GitHub API:', apiUrl);
@@ -86,7 +164,6 @@ async function loadPlaylistFromGitHub() {
         .map(file => ({
             name: file.name,
             path: file.path,
-            // ✅ ОТНОСИТЕЛЬНЫЙ ПУТЬ для GitHub Pages (нет CORS)
             downloadUrl: `./${file.path}`
         }));
     
@@ -125,7 +202,7 @@ async function loadPlaylistFromGitHub() {
     console.log('Плейлист готов:', playlist);
 }
 
-// ✅ ПРОСТАЯ функция чтения ID3 тегов
+// Чтение ID3 тегов из файла
 function readTags(filePath) {
     return new Promise((resolve) => {
         jsmediatags.read(filePath, {
@@ -150,12 +227,10 @@ function readTags(filePath) {
     });
 }
 
-// Получение имени файла без расширения
 function getFilename(filename) {
     return filename.replace(/\.[^/.]+$/, "");
 }
 
-// Преобразование base64 картинки в data URL
 function getCoverDataUrl(picture) {
     if (!picture) return null;
     
@@ -166,17 +241,15 @@ function getCoverDataUrl(picture) {
         base64String += String.fromCharCode(data[i]);
     }
     
-    return `data:${format};base64,${window.btoa(base64String)}`;
+    return `${format};base64,${window.btoa(base64String)}`;
 }
 
-// Load track
 function loadTrack(index) {
     const track = playlist[index];
     audio.src = track.src;
     trackTitle.textContent = track.title;
     trackArtist.textContent = track.artist;
     
-    // Устанавливаем обложку
     if (track.cover) {
         try {
             const coverUrl = getCoverDataUrl(track.cover);
@@ -204,7 +277,6 @@ function loadTrack(index) {
     updatePlaylistActive();
 }
 
-// Render playlist
 function renderPlaylist() {
     playlistCount.textContent = playlist.length;
     
@@ -226,7 +298,6 @@ function renderPlaylist() {
         </div>
     `).join('');
     
-    // Load durations
     playlist.forEach((track, index) => {
         const tempAudio = new Audio(track.src);
         tempAudio.addEventListener('loadedmetadata', () => {
@@ -239,14 +310,12 @@ function renderPlaylist() {
     });
 }
 
-// Update active playlist item
 function updatePlaylistActive() {
     document.querySelectorAll('.playlist-item').forEach((item, index) => {
         item.classList.toggle('active', index === currentTrackIndex);
     });
 }
 
-// Setup event listeners
 function setupEventListeners() {
     playPauseBtn.addEventListener('click', togglePlayPause);
     prevBtn.addEventListener('click', playPrevious);
@@ -275,15 +344,21 @@ function setupEventListeners() {
         isPlaying = true;
         updatePlayPauseButton();
         document.querySelector('.glass-player').classList.add('playing');
+        savePlayerState(); // Сохраняем при воспроизведении
     });
     audio.addEventListener('pause', () => {
         isPlaying = false;
         updatePlayPauseButton();
         document.querySelector('.glass-player').classList.remove('playing');
+        savePlayerState(); // Сохраняем при паузе
     });
+    audio.addEventListener('seeked', savePlayerState); // Сохраняем при перемотке
+    
+    // Сохраняем состояние перед закрытием страницы
+    window.addEventListener('beforeunload', savePlayerState);
+    window.addEventListener('pagehide', savePlayerState);
 }
 
-// Touch controls
 function setupTouchControls() {
     let isDraggingProgress = false;
     let isDraggingVolume = false;
@@ -309,7 +384,6 @@ function setupTouchControls() {
     });
 }
 
-// Play/Pause
 function togglePlayPause() {
     isPlaying ? pause() : play();
 }
@@ -317,7 +391,6 @@ function togglePlayPause() {
 function play() { audio.play(); }
 function pause() { audio.pause(); }
 
-// Previous/Next
 function playPrevious() {
     if (audio.currentTime > 3) {
         audio.currentTime = 0;
@@ -326,6 +399,7 @@ function playPrevious() {
         loadTrack(currentTrackIndex);
         play();
     }
+    savePlayerState();
 }
 
 function playNext() {
@@ -336,15 +410,15 @@ function playNext() {
     }
     loadTrack(currentTrackIndex);
     play();
+    savePlayerState();
 }
 
-// Shuffle
 function toggleShuffle() {
     isShuffle = !isShuffle;
     shuffleBtn.classList.toggle('active', isShuffle);
+    savePlayerState();
 }
 
-// Repeat
 function toggleRepeat() {
     repeatMode = (repeatMode + 1) % 3;
     repeatBtn.classList.toggle('active', repeatMode > 0);
@@ -363,9 +437,9 @@ function toggleRepeat() {
             </svg>
         `;
     }
+    savePlayerState();
 }
 
-// Progress
 function updateProgress() {
     const progress = (audio.currentTime / audio.duration) * 100;
     progressFill.style.width = progress + '%';
@@ -381,18 +455,18 @@ function seek(e) {
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const pos = (clientX - rect.left) / rect.width;
     audio.currentTime = pos * audio.duration;
+    savePlayerState();
 }
 
-// Volume
 function setVolume(e) {
     const rect = volumeSlider.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     audio.volume = pos;
     volumeFill.style.width = (pos * 100) + '%';
+    savePlayerState();
 }
 
-// Track end
 function handleTrackEnd() {
     if (repeatMode === 2) {
         audio.currentTime = 0;
@@ -402,11 +476,9 @@ function handleTrackEnd() {
     }
 }
 
-// Playlist panel
 function openPlaylist() { playlistPanel.classList.add('active'); }
 function closePlaylistPanel() { playlistPanel.classList.remove('active'); }
 
-// Utility
 function formatTime(seconds) {
     if (isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
@@ -427,7 +499,6 @@ function updatePlayPauseButton() {
     }
 }
 
-// Error handling
 function showError(message) {
     loadingScreen.innerHTML = `
         <div class="error-icon">⚠️</div>
@@ -436,10 +507,8 @@ function showError(message) {
     `;
 }
 
-// Initialize on load
 document.addEventListener('DOMContentLoaded', init);
 
-// Prevent zoom on double tap
 let lastTouchEnd = 0;
 document.addEventListener('touchend', (e) => {
     const now = Date.now();
