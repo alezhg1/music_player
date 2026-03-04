@@ -129,15 +129,6 @@ function loadPlayerState() {
     return null;
 }
 
-// Очистка состояния при закрытии
-function clearPlayerState() {
-    try {
-        localStorage.removeItem(STORAGE_KEY);
-    } catch (e) {
-        console.error('❌ Ошибка очистки:', e);
-    }
-}
-
 // Загрузка списка файлов из GitHub API
 async function loadPlaylistFromGitHub() {
     const { username, repository, branch, musicFolder } = GITHUB_CONFIG;
@@ -170,10 +161,12 @@ async function loadPlaylistFromGitHub() {
     console.log(`Найдено ${mp3Files.length} MP3 файлов`);
     console.log('Пример URL:', mp3Files[0]?.downloadUrl);
     
-    for (const file of mp3Files) {
+    // Загружаем метаданные для каждого файла (пакетно, не все сразу)
+    for (let i = 0; i < mp3Files.length; i++) {
+        const file = mp3Files[i];
         try {
-            console.log('Читаем теги из:', file.downloadUrl);
-            const metadata = await readTags(file.downloadUrl);
+            console.log(`🎵 [${i + 1}/${mp3Files.length}] Читаем теги из:`, file.name);
+            const metadata = await readTagsWithFetch(file.downloadUrl);
             playlist.push({
                 src: file.downloadUrl,
                 path: file.path,
@@ -183,7 +176,7 @@ async function loadPlaylistFromGitHub() {
                 cover: metadata.picture || null,
                 duration: 0
             });
-            console.log('✅ Теги загружены для:', file.name);
+            console.log('✅ Теги загружены:', file.name, metadata.title || '(без названия)');
         } catch (error) {
             console.error(`❌ Ошибка: ${file.name}`, error);
             playlist.push({
@@ -196,35 +189,69 @@ async function loadPlaylistFromGitHub() {
                 duration: 0
             });
         }
+        
+        // Небольшая задержка чтобы не блокировать браузер
+        if (i % 10 === 0) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
     }
     
     playlist.sort((a, b) => a.title.localeCompare(b.title));
-    console.log('Плейлист готов:', playlist);
+    console.log('🎶 Плейлист готов:', playlist.length, 'треков');
 }
 
-// Чтение ID3 тегов из файла
-function readTags(filePath) {
-    return new Promise((resolve) => {
-        jsmediatags.read(filePath, {
-            onSuccess: function(tag) {
-                resolve({
-                    title: tag.tags.title || null,
-                    artist: tag.tags.artist || null,
-                    album: tag.tags.album || null,
-                    picture: tag.tags.picture || null
-                });
-            },
-            onError: function(error) {
-                console.log('jsmediatags error (нет тегов):', error.type);
-                resolve({
-                    title: null,
-                    artist: null,
-                    album: null,
-                    picture: null
-                });
-            }
+// Чтение ID3 тегов через fetch + ArrayBuffer (РАБОТАЕТ!)
+async function readTagsWithFetch(filePath) {
+    try {
+        // Загружаем файл как ArrayBuffer
+        const response = await fetch(filePath);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const arrayBuffer = await response.arrayBuffer();
+        
+        // Создаем blob из arrayBuffer
+        const blob = new Blob([arrayBuffer], { type: 'audio/mp3' });
+        
+        // Создаем blob URL
+        const blobUrl = URL.createObjectURL(blob);
+        
+        return await new Promise((resolve) => {
+            jsmediatags.read(blobUrl, {
+                onSuccess: function(tag) {
+                    // Освобождаем blob URL
+                    URL.revokeObjectURL(blobUrl);
+                    
+                    const tags = tag.tags;
+                    resolve({
+                        title: tags.title || null,
+                        artist: tags.artist || null,
+                        album: tags.album || null,
+                        picture: tags.picture || null
+                    });
+                },
+                onError: function(error) {
+                    URL.revokeObjectURL(blobUrl);
+                    console.log('⚠️ jsmediatags error:', error.type);
+                    resolve({
+                        title: null,
+                        artist: null,
+                        album: null,
+                        picture: null
+                    });
+                }
+            });
         });
-    });
+    } catch (error) {
+        console.error('❌ Ошибка readTagsWithFetch:', error);
+        return {
+            title: null,
+            artist: null,
+            album: null,
+            picture: null
+        };
+    }
 }
 
 function getFilename(filename) {
@@ -298,6 +325,7 @@ function renderPlaylist() {
         </div>
     `).join('');
     
+    // Load durations
     playlist.forEach((track, index) => {
         const tempAudio = new Audio(track.src);
         tempAudio.addEventListener('loadedmetadata', () => {
@@ -344,15 +372,15 @@ function setupEventListeners() {
         isPlaying = true;
         updatePlayPauseButton();
         document.querySelector('.glass-player').classList.add('playing');
-        savePlayerState(); // Сохраняем при воспроизведении
+        savePlayerState();
     });
     audio.addEventListener('pause', () => {
         isPlaying = false;
         updatePlayPauseButton();
         document.querySelector('.glass-player').classList.remove('playing');
-        savePlayerState(); // Сохраняем при паузе
+        savePlayerState();
     });
-    audio.addEventListener('seeked', savePlayerState); // Сохраняем при перемотке
+    audio.addEventListener('seeked', savePlayerState);
     
     // Сохраняем состояние перед закрытием страницы
     window.addEventListener('beforeunload', savePlayerState);
