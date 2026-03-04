@@ -200,7 +200,7 @@ async function loadPlaylistFromGitHub() {
     console.log('🎶 Плейлист готов:', playlist.length, 'треков');
 }
 
-// Чтение ID3 тегов через fetch + ArrayBuffer (РАБОТАЕТ!)
+// Чтение ID3 тегов через music-metadata-browser (РАБОТАЕТ С ARRAYBUFFER)
 async function readTagsWithFetch(filePath) {
     try {
         // Загружаем файл как ArrayBuffer
@@ -211,38 +211,22 @@ async function readTagsWithFetch(filePath) {
         
         const arrayBuffer = await response.arrayBuffer();
         
-        // Создаем blob из arrayBuffer
-        const blob = new Blob([arrayBuffer], { type: 'audio/mp3' });
+        // Парсим метаданные из буфера
+        const metadata = await mm.parseArrayBuffer(arrayBuffer, { mimeType: 'audio/mpeg' });
         
-        // Создаем blob URL
-        const blobUrl = URL.createObjectURL(blob);
-        
-        return await new Promise((resolve) => {
-            jsmediatags.read(blobUrl, {
-                onSuccess: function(tag) {
-                    // Освобождаем blob URL
-                    URL.revokeObjectURL(blobUrl);
-                    
-                    const tags = tag.tags;
-                    resolve({
-                        title: tags.title || null,
-                        artist: tags.artist || null,
-                        album: tags.album || null,
-                        picture: tags.picture || null
-                    });
-                },
-                onError: function(error) {
-                    URL.revokeObjectURL(blobUrl);
-                    console.log('⚠️ jsmediatags error:', error.type);
-                    resolve({
-                        title: null,
-                        artist: null,
-                        album: null,
-                        picture: null
-                    });
-                }
-            });
-        });
+        const common = metadata.common;
+        const picture = common.picture ? common.picture[0] : null;
+
+        return {
+            title: common.title || null,
+            artist: common.artist || null,
+            album: common.album || null,
+            picture: picture ? {
+                data: picture.data, // Это уже Uint8Array
+                format: picture.format || 'image/jpeg'
+            } : null
+        };
+
     } catch (error) {
         console.error('❌ Ошибка readTagsWithFetch:', error);
         return {
@@ -259,16 +243,26 @@ function getFilename(filename) {
 }
 
 function getCoverDataUrl(picture) {
-    if (!picture) return null;
+    if (!picture || !picture.data) return null;
     
     const { data, format } = picture;
+    
+    // data может быть Uint8Array или обычным массивом
     let base64String = "";
     
-    for (let i = 0; i < data.length; i++) {
-        base64String += String.fromCharCode(data[i]);
+    // Конвертируем Uint8Array в base64
+    if (data instanceof Uint8Array) {
+        // Используем бинарный способ для скорости
+        base64String = btoa(String.fromCharCode.apply(null, data));
+    } else {
+        // Фоллбэк для обычных массивов
+        for (let i = 0; i < data.length; i++) {
+            base64String += String.fromCharCode(data[i]);
+        }
+        base64String = window.btoa(base64String);
     }
     
-    return `${format};base64,${window.btoa(base64String)}`;
+    return `data:${format};base64,${base64String}`;
 }
 
 function loadTrack(index) {
